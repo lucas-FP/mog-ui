@@ -1,25 +1,26 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Router } from '@reach/router';
+import Login from './pages/Login';
+import Room from './pages/Room';
+import RoomsList from './pages/RoomsList';
+import Home from './pages/Home';
+import RoomLogin from './pages/RoomLogin';
+import GameRenderer from './pages/GameRenderer';
+import NotFound from './pages/NotFound';
+
+//TODO setup enviroment variables
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <NotFound default />
+      <Home path="/" />
+      <Login path="/login" />
+      <RoomsList path="/list" />
+      <Room path="/room/:roomId" />
+      <RoomLogin path="/room/:roomId/login" />
+      <GameRenderer path={`/room/:roomId/:gameCode/:gameId`} />
+    </Router>
   );
 }
 
