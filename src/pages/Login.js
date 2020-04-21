@@ -54,8 +54,13 @@ export default function Login() {
       return;
     }
     setLoading(true);
-    await UserService.register(registerName, registerNick, registerPassword);
+    const res = await UserService.register(
+      registerName,
+      registerNick,
+      registerPassword
+    );
     setLoading(false);
+    if (res.status === 200) navigate('/list');
   };
 
   return (

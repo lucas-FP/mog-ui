@@ -112,6 +112,7 @@ export default function Room({ roomId }) {
 
   const HandleGameSubmit = (evt) => {
     evt.preventDefault();
+    setCreatingNewGame(false);
     roomSocket.createGame(GameCodeEnum.CONNECT, {
       xSize: newGameX,
       ySize: newGameY,
@@ -165,7 +166,7 @@ export default function Room({ roomId }) {
         </InputForm>
       </ChatBox>
       <GameBox>
-        <GamesList title="Rooom's Games">{renderGames()}</GamesList>
+        <GamesList title="Room's Games">{renderGames()}</GamesList>
         {creatingNewGame ? (
           <form onSubmit={HandleGameSubmit}>
             <Input value={newGameX} type="number" onChange={setNewGameX}>
