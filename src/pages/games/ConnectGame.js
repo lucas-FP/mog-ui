@@ -45,9 +45,15 @@ const ColorBox = styled.div`
   height: 100%;
 `;
 
+const ColorName = styled.span`
+  color: ${(props) => props.color};
+  font-weigth: bold;
+`;
+
 const VictoryText = styled.h2``;
 
-const renderMap = {
+//TODO think of better way to do this, not using 2 rendermaps
+const renderBoxMap = {
   '0': <ColorBox color={'blue'} />,
   '1': <ColorBox color={'red'} />,
   '2': <ColorBox color={'green'} />,
@@ -62,8 +68,92 @@ const renderMap = {
   '11': <ColorBox color={'gray'} />,
 };
 
+const renderNameMap = (text, i, id) => {
+  switch (i) {
+    case 0:
+      return (
+        <ColorName key={id} color={'blue'}>
+          {text}
+        </ColorName>
+      );
+    case 1:
+      return (
+        <ColorName key={id} color={'red'}>
+          {text}
+        </ColorName>
+      );
+    case 2:
+      return (
+        <ColorName key={id} color={'green'}>
+          {text}
+        </ColorName>
+      );
+    case 3:
+      return (
+        <ColorName key={id} color={'yellow'}>
+          {text}
+        </ColorName>
+      );
+    case 4:
+      return (
+        <ColorName key={id} color={'purple'}>
+          {text}
+        </ColorName>
+      );
+    case 5:
+      return (
+        <ColorName key={id} color={'deeppink'}>
+          {text}
+        </ColorName>
+      );
+    case 6:
+      return (
+        <ColorName key={id} color={'orange'}>
+          {text}
+        </ColorName>
+      );
+    case 7:
+      return (
+        <ColorName key={id} color={'black'}>
+          {text}
+        </ColorName>
+      );
+    case 8:
+      return (
+        <ColorName key={id} color={'brown'}>
+          {text}
+        </ColorName>
+      );
+    case 9:
+      return (
+        <ColorName key={id} color={'cyan'}>
+          {text}
+        </ColorName>
+      );
+    case 10:
+      return (
+        <ColorName key={id} color={'lawngreen'}>
+          {text}
+        </ColorName>
+      );
+    case 11:
+      return (
+        <ColorName key={id} color={'gray'}>
+          {text}
+        </ColorName>
+      );
+    default:
+      return (
+        <ColorName key={id} color={'gray'}>
+          {text}
+        </ColorName>
+      );
+  }
+};
+
 export default function ConnectRoom({ roomId, gameId }) {
   const [connectedUsers, setConnectedUsers] = useState([]);
+  const [userSlots, setUserSlots] = useState([]);
   const [gameState, setGameState] = useState({});
 
   const socketRef = useRef();
@@ -85,7 +175,6 @@ export default function ConnectRoom({ roomId, gameId }) {
   };
 
   const onEnter = (user) => {
-    console.log('enter', user);
     if (Array.isArray(user))
       setConnectedUsers((users) =>
         [...users, ...user].filter(uniqueKeyFilter('id'))
@@ -97,15 +186,17 @@ export default function ConnectRoom({ roomId, gameId }) {
   };
 
   const onLeave = (user) => {
-    console.log('left', user);
     setConnectedUsers((users) => users.filter((u) => u.id !== user.id));
   };
 
   const onGameStateChange = (gameState) => {
-    console.log(gameState);
     setGameState((actualState) => {
       return { ...actualState, ...gameState };
     });
+  };
+
+  const onGameSlotChange = (gameSlots) => {
+    setUserSlots(gameSlots);
   };
 
   const gameSocket = SocketService(
@@ -116,6 +207,7 @@ export default function ConnectRoom({ roomId, gameId }) {
       onLeave,
       onEnter,
       onGameStateChange,
+      onGameSlotChange,
     }
   );
 
@@ -136,10 +228,10 @@ export default function ConnectRoom({ roomId, gameId }) {
   });
 
   const renderUserBoxes = () => {
-    return connectedUsers.map((u) => {
+    return userSlots.map((u, i) => {
       if (gameState && gameState.turnPlayer && gameState.turnPlayer.id === u.id)
-        return '->' + (u.nick || u.userName);
-      else return u.nick || u.userName;
+        return renderNameMap('->' + (u.nick || u.userName), i, u.id);
+      else return renderNameMap(u.nick || u.userName, i, u.id);
     });
   };
 
@@ -168,7 +260,7 @@ export default function ConnectRoom({ roomId, gameId }) {
       <GameBox>
         <GridSizer xSize={xSize} ySize={ySize}>
           <GameGrid
-            renderMap={renderMap}
+            renderMap={renderBoxMap}
             onClick={processAction}
             gridData={gameState.grid}
           />

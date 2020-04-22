@@ -3,16 +3,25 @@ import GameStatusEnum from '../util/GameConfigs/GameStatusEnum';
 export default function SocketService(
   socket,
   { roomId, gameId },
-  { onMessage, onError, onEnter, onLeave, onGameChange, onGameStateChange }
+  {
+    onMessage,
+    onError,
+    onEnter,
+    onLeave,
+    onGameChange,
+    onGameStateChange,
+    onGameSlotChange,
+  }
 ) {
   return {
     listen() {
       socket.on('entered', (data) => onEnter && onEnter(data));
+      socket.on(
+        'gameSlotUpdated',
+        (data) => onGameSlotChange && onGameSlotChange(data)
+      );
       socket.on('left', (data) => onLeave && onLeave(data));
-      socket.on('customError', (data) => {
-        console.log(data);
-        onError && onError(data);
-      });
+      socket.on('customError', (data) => onError && onError(data));
       socket.on('gamePushed', (data) => onGameChange && onGameChange(data));
       socket.on('gameState', (data) => {
         onGameStateChange && onGameStateChange(data.gameData);
@@ -32,6 +41,7 @@ export default function SocketService(
         onEnter && onEnter(data.connectedUsers);
         onGameChange && onGameChange(data.gamesList);
         onGameStateChange && onGameStateChange(data.gameData);
+        onGameSlotChange && onGameSlotChange(data.playerSlots);
       });
     },
 
