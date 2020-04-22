@@ -159,7 +159,7 @@ export default function ConnectRoom({ roomId, gameId }) {
   const socketRef = useRef();
   socketRef.current = socketClient(
     process.env.NODE_ENV === 'production'
-      ? 'https://desolate-mesa-14660.herokuapp.com/games'
+      ? 'https://mog-backend.herokuapp.com/games'
       : 'http://localhost:3333/games'
   );
 

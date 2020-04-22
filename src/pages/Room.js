@@ -46,7 +46,7 @@ export default function Room({ roomId }) {
   //TODO remove hardcoded
   socketRef.current = socketClient(
     process.env.NODE_ENV === 'production'
-      ? 'https://desolate-mesa-14660.herokuapp.com/rooms'
+      ? 'https://mog-backend.herokuapp.com/rooms'
       : 'http://localhost:3333/rooms'
   );
 

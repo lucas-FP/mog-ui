@@ -16,8 +16,8 @@ export default function Home() {
   return (
     <MainWrapper>
       <SectionWrapper>
-        <Title>Undefined</Title>
-        <SubTitle>Untitled game room project</SubTitle>
+        <Title>mog</Title>
+        <SubTitle>Minimalistic Online Games</SubTitle>
       </SectionWrapper>
       <SectionWrapper>
         <Link to="/login">Login</Link>
