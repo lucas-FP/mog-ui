@@ -1,7 +1,7 @@
 # mog-ui
 
 mog-ui is the user interface for mog server. mog is a Minimalistic Online Game server.
-The user interface is built with React, and uses [socket.io](https://socket.io/) to provide live game experience to users.
+The user interface is built with [React](https://reactjs.org), and uses [socket.io](https://socket.io/) to provide live game experience to users.
 
 As of this moment, there is only one game implemented: _Connect_.
 
