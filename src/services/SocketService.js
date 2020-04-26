@@ -1,71 +1,124 @@
 import GameStatusEnum from '../util/GameConfigs/GameStatusEnum';
 
-export default function SocketService(
-  socket,
-  { roomId, gameId },
-  {
-    onMessage,
-    onError,
-    onEnter,
-    onLeave,
-    onGameChange,
-    onGameStateChange,
-    onGameSlotChange,
-  }
-) {
-  return {
-    listen() {
-      socket.on('entered', (data) => onEnter && onEnter(data));
-      socket.on(
-        'gameSlotUpdated',
-        (data) => onGameSlotChange && onGameSlotChange(data)
-      );
-      socket.on('left', (data) => onLeave && onLeave(data));
-      socket.on('customError', (data) => onError && onError(data));
-      socket.on('gamePushed', (data) => onGameChange && onGameChange(data));
-      socket.on('gameState', (data) => {
-        onGameStateChange && onGameStateChange(data.gameData);
-      });
-      socket.on(
-        'gameStarted',
-        () =>
-          onGameStateChange &&
-          onGameStateChange({ gameStatus: GameStatusEnum.ONGOING })
-      );
-      socket.on('messagePushed', (data) => {
-        onMessage && onMessage(data);
-      });
-      socket.on('roomData', (data) => {
-        console.log(data);
-        onMessage && onMessage(data.messageList);
-        onEnter && onEnter(data.connectedUsers);
-        onGameChange && onGameChange(data.gamesList);
-        onGameStateChange && onGameStateChange(data.gameData);
-        onGameSlotChange && onGameSlotChange(data.playerSlots);
-      });
-    },
+//TODO think of using hooks instead of class
 
-    enter() {
-      socket.emit('enter', { roomId, gameId });
-    },
-    leave() {
-      socket.emit('leave', { roomId, gameId });
-      socket.disconnect();
-    },
-    sendMessage(message) {
-      socket.emit('pushMessage', { roomId, gameId, message });
-    },
-    createGame(gameCode, gameConfig) {
-      socket.emit('pushGame', { roomId, gameCode, gameConfig });
-    },
-    sendAction(action) {
-      socket.emit('pushAction', { roomId, gameId, action });
-    },
-    startGame() {
-      socket.emit('startGame', { roomId, gameId });
-    },
-    restartGame() {
-      socket.emit('restartGame', { roomId, gameId });
-    },
-  };
+export default class SocketService {
+  socket;
+  roomId;
+  gameId;
+  onMessage;
+  onError;
+  onEnter;
+  onLeave;
+  onGameChange;
+  onGameStateChange;
+  onEnterSlot;
+  onQuit;
+  connnectionCheck;
+
+  constructor(
+    socket,
+    { roomId, gameId },
+    {
+      onMessage,
+      onError,
+      onEnter,
+      onLeave,
+      onGameChange,
+      onGameStateChange,
+      onEnterSlot,
+      onQuit,
+    }
+  ) {
+    this.socket = socket;
+    this.roomId = roomId;
+    this.gameId = gameId;
+    this.onMessage = onMessage;
+    this.onError = onError;
+    this.onEnter = onEnter;
+    this.onLeave = onLeave;
+    this.onGameChange = onGameChange;
+    this.onGameStateChange = onGameStateChange;
+    this.onEnterSlot = onEnterSlot;
+    this.onQuit = onQuit;
+    this.connnectionCheck = setInterval(() => {
+      console.log(socket.connected);
+    }, 5000);
+  }
+
+  listen() {
+    this.socket.on('entered', (data) => this.onEnter && this.onEnter(data));
+    this.socket.on(
+      'enterSlot',
+      (data) => this.onEnterSlot && this.onEnterSlot(data)
+    );
+    this.socket.on('left', (data) => this.onLeave && this.onLeave(data));
+    this.socket.on('customError', (data) => this.onError && this.onError(data));
+    this.socket.on(
+      'gamePushed',
+      (data) => this.onGameChange && this.onGameChange(data)
+    );
+    this.socket.on('gameState', (data) => {
+      this.onGameStateChange && this.onGameStateChange(data.gameData);
+    });
+    this.socket.on('quitted', (data) => {
+      this.onLeave(data);
+      this.onQuit(data);
+    });
+    this.socket.on(
+      'gameStarted',
+      () =>
+        this.onGameStateChange &&
+        this.onGameStateChange({ gameStatus: GameStatusEnum.ONGOING })
+    );
+    this.socket.on('messagePushed', (data) => {
+      this.onMessage && this.onMessage(data);
+    });
+    this.socket.on('roomData', (data) => {
+      this.onMessage && this.onMessage(data.messageList);
+      this.onEnter && this.onEnter(data.connectedUsers);
+      this.onGameChange && this.onGameChange(data.gamesList);
+      this.onGameStateChange && this.onGameStateChange(data.gameData);
+      this.onEnterSlot && this.onEnterSlot(data.playerSlots);
+    });
+  }
+
+  enter() {
+    this.socket.emit('enter', { roomId: this.roomId, gameId: this.gameId });
+  }
+  leave() {
+    this.socket.emit('leave', { roomId: this.roomId, gameId: this.gameId });
+    this.socket.disconnect();
+  }
+  sendMessage(message) {
+    this.socket.emit('pushMessage', {
+      roomId: this.roomId,
+      gameId: this.gameId,
+      message,
+    });
+  }
+  createGame(gameCode, gameConfig) {
+    this.socket.emit('pushGame', { roomId: this.roomId, gameCode, gameConfig });
+  }
+  sendAction(action) {
+    this.socket.emit('pushAction', {
+      roomId: this.roomId,
+      gameId: this.gameId,
+      action,
+    });
+  }
+  startGame() {
+    this.socket.emit('startGame', { roomId: this.roomId, gameId: this.gameId });
+  }
+  restartGame() {
+    this.socket.emit('restartGame', {
+      roomId: this.roomId,
+      gameId: this.gameId,
+    });
+  }
+  quitGame() {
+    this.socket.emit('quit', { roomId: this.roomId, gameId: this.gameId });
+    this.socket.disconnect();
+    clearInterval(this.connnectionCheck);
+  }
 }

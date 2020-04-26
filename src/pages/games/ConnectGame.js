@@ -7,6 +7,7 @@ import { List, GameGrid, Button } from '../../components';
 import SocketService from '../../services/SocketService';
 import GameStatus from '../../util/GameConfigs/GameStatusEnum';
 import { uniqueKeyFilter } from '../../util/Generic';
+import useSocket from '../../hooks/useSocket';
 
 const RoomWrapper = styled.div`
   heigth: 100vh;
@@ -102,13 +103,13 @@ const renderNameMap = (text, i, id) => {
       );
     case 5:
       return (
-        <ColorName key={id} color={'deeppink'}>
+        <ColorName key={id} color={'orange'}>
           {text}
         </ColorName>
       );
     case 6:
       return (
-        <ColorName key={id} color={'orange'}>
+        <ColorName key={id} color={'deeppink'}>
           {text}
         </ColorName>
       );
@@ -138,7 +139,7 @@ const renderNameMap = (text, i, id) => {
       );
     case 11:
       return (
-        <ColorName key={id} color={'gray'}>
+        <ColorName key={id} color={'crimson'}>
           {text}
         </ColorName>
       );
@@ -155,12 +156,13 @@ export default function ConnectRoom({ roomId, gameId }) {
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [userSlots, setUserSlots] = useState([]);
   const [gameState, setGameState] = useState({});
+  const [hasPlayerQuitted, setHasPlayerQuitted] = useState(false);
 
   const socketRef = useRef();
   socketRef.current = socketClient(
     process.env.NODE_ENV === 'production'
-      ? 'https://mog-backend.herokuapp.com/games'
-      : 'http://localhost:3333/games'
+      ? 'https://mog-backend.herokuapp.com/connect'
+      : 'http://localhost:3333/connect'
   );
 
   const onError = (error) => {
@@ -195,11 +197,23 @@ export default function ConnectRoom({ roomId, gameId }) {
     });
   };
 
-  const onGameSlotChange = (gameSlots) => {
-    setUserSlots(gameSlots);
+  const onEnterSlot = (gameSlot) => {
+    if (Array.isArray(gameSlot))
+      setUserSlots((users) =>
+        [...users, ...gameSlot].filter(uniqueKeyFilter('id'))
+      );
+    else
+      setUserSlots((users) =>
+        [...users, gameSlot].filter(uniqueKeyFilter('id'))
+      );
   };
 
-  const gameSocket = SocketService(
+  const onQuit = (user) => {
+    setUserSlots((users) => users.filter((u) => u.id !== user.id));
+    setHasPlayerQuitted(true);
+  };
+
+  const gameSocket = useSocket(
     socketRef.current,
     { roomId, gameId },
     {
@@ -207,7 +221,8 @@ export default function ConnectRoom({ roomId, gameId }) {
       onLeave,
       onEnter,
       onGameStateChange,
-      onGameSlotChange,
+      onEnterSlot,
+      onQuit,
     }
   );
 
@@ -216,6 +231,7 @@ export default function ConnectRoom({ roomId, gameId }) {
   };
 
   useEffect(() => {
+    console.log('effect');
     gameSocket.listen();
     gameSocket.enter();
     return () => {
@@ -229,9 +245,12 @@ export default function ConnectRoom({ roomId, gameId }) {
 
   const renderUserBoxes = () => {
     return userSlots.map((u, i) => {
+      const index = connectedUsers.find((connected) => connected.id === u.id)
+        ? i
+        : null;
       if (gameState && gameState.turnPlayer && gameState.turnPlayer.id === u.id)
-        return renderNameMap('->' + (u.nick || u.userName), i, u.id);
-      else return renderNameMap(u.nick || u.userName, i, u.id);
+        return renderNameMap('->' + (u.nick || u.userName), index, u.id);
+      else return renderNameMap(u.nick || u.userName, index, u.id);
     });
   };
 
@@ -253,9 +272,19 @@ export default function ConnectRoom({ roomId, gameId }) {
         {gameState.gameStatus === GameStatus.NOT_STARTED && (
           <Button onClick={() => gameSocket.startGame()}>Start Game</Button>
         )}
-        {gameState.gameStatus === GameStatus.FINISHED && (
+        {(gameState.gameStatus === GameStatus.FINISHED ||
+          (gameState.gameStatus !== GameStatus.NOT_STARTED &&
+            hasPlayerQuitted)) && (
           <Button onClick={() => gameSocket.restartGame()}>Restart</Button>
         )}
+        <Button
+          onClick={() => {
+            gameSocket.quitGame();
+            navigate(`/room/${roomId}`);
+          }}
+        >
+          Quit
+        </Button>
       </InfoBox>
       <GameBox>
         <GridSizer xSize={xSize} ySize={ySize}>

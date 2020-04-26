@@ -6,6 +6,7 @@ import useBeforeUnload from '../hooks/useBeforeUnload';
 import { List, Input, Button, Message } from '../components';
 import SocketService from '../services/SocketService';
 import GameCodeEnum from '../util/GameConfigs/GameCodeEnum';
+import useSocket from '../hooks/useSocket';
 
 const RoomWrapper = styled.div`
   display: flex;
@@ -83,7 +84,7 @@ export default function Room({ roomId }) {
     else setActiveGames((games) => [...games, game]);
   };
 
-  let roomSocket = SocketService(
+  let roomSocket = useSocket(
     socketRef.current,
     { roomId },
     {
