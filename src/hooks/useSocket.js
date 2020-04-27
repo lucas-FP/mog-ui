@@ -16,14 +16,6 @@ export default function useSocket(
     onQuit,
   }
 ) {
-  const timerRef = useRef();
-
-  useEffect(() => {
-    return () => {
-      clearInterval(timerRef.current);
-    };
-  }, []);
-
   return {
     listen() {
       socket.on('entered', (data) => onEnter && onEnter(data));
@@ -58,10 +50,10 @@ export default function useSocket(
 
     enter() {
       socket.emit('enter', { roomId: roomId, gameId: gameId });
-      timerRef.current = setInterval(
-        () => socket.emit('enter', { roomId: roomId, gameId: gameId }),
-        5000
-      );
+      // timerRef.current = setInterval(
+      //   () => socket.emit('enter', { roomId: roomId, gameId: gameId }),
+      //   5000
+      // );
     },
     leave() {
       socket.emit('leave', { roomId: roomId, gameId: gameId });

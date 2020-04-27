@@ -1,10 +1,33 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Button, Input } from '../components';
+import { Button, Input, Title } from '../components';
 import RoomsService from '../services/RoomsService';
 import { navigate } from '@reach/router';
 
-const LoginWrapper = styled.div``;
+//TODO check if possible to componentize (its the same layout in login page)
+
+const LoginWrapper = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-width: 500px;
+  margin: 20vh auto;
+  height: 50vh;
+  align-items: center;
+`;
+
+const Form = styled.form`
+  padding: 5px;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify
+`;
+
+const EnterButton = styled(Button)`
+  margin: 20px auto;
+`;
 
 export default function RoomLogin({ roomId }) {
   const [password, setPassword] = useState('');
@@ -25,13 +48,13 @@ export default function RoomLogin({ roomId }) {
 
   return (
     <LoginWrapper>
-      <h1>Enter Room</h1>
-      <form onSubmit={handleSubmit}>
+      <Title>Enter Room</Title>
+      <Form onSubmit={handleSubmit}>
         <Input type="password" value={password} onChange={setPassword}>
           Password
         </Input>
-        <Button type="submit">Enter</Button>
-      </form>
+        <EnterButton type="submit">Enter</EnterButton>
+      </Form>
     </LoginWrapper>
   );
 }

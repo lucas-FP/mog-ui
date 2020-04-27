@@ -2,7 +2,16 @@ import React, { useState, useEffect } from 'react';
 
 import styled from 'styled-components';
 
-const StyledInput = styled.input``;
+const StyledInput = styled.input`
+  font-size: 16px;
+  border-radius: 5px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #000;
+  box-shadow: none;
+  outline: none;
+  padding: 5px;
+`;
 const StyledLabel = styled.label`
   display: flex;
   flex-direction: column;

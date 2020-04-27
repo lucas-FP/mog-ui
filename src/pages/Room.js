@@ -18,17 +18,44 @@ const GameBox = styled.div`
   flex: 1;
 `;
 
-const GamesList = styled(List)``;
-const MessageList = styled(List)``;
+const GamesList = styled(List)`
+  height: ${(props) =>
+    props.open ? 'calc(100vh - 65px)' : 'calc(100vh - 465px)'};
+`;
+const MessageList = styled(List)`
+  height: calc(100vh - 65px);
+`;
 const UserList = styled(List)`
   flex: 1;
+  height: calc(100vh - 65px);
 `;
 
-const InputForm = styled.form``;
-const ChatInput = styled(Input)``;
-const SendButton = styled(Button)``;
+const InputForm = styled.form`
+  display: flex;
+  padding: 0px 20px;
+`;
+const ChatInput = styled(Input)`
+  flex: 1;
+  & input {
+    flex: 1;
+  }
+`;
+const SendButton = styled(Button)`
+  margin: 0px 10px;
+`;
 
-const NewGameButton = styled(Button)``;
+const ActionsWrapper = styled.div`
+  display: flex;
+`;
+
+const ActionsButtons = styled(Button)`
+  flex: 1;
+  margin: 10px;
+`;
+
+const NewGameButton = styled(Button)`
+  margin: auto;
+`;
 
 export default function Room({ roomId }) {
   const [connectedUsers, setConnectedUsers] = useState([]);
@@ -79,7 +106,6 @@ export default function Room({ roomId }) {
   };
 
   const onGameChange = (game) => {
-    console.log(game);
     if (Array.isArray(game)) setActiveGames((games) => [...games, ...game]);
     else setActiveGames((games) => [...games, game]);
   };
@@ -137,7 +163,9 @@ export default function Room({ roomId }) {
   });
 
   const renderUserBoxes = () => {
-    return connectedUsers.map((u) => u.nick || u.userName);
+    return connectedUsers.map((u) => (
+      <span color="lightGreen">{u.nick || u.userName}</span>
+    ));
   };
 
   const renderMessages = () => {
@@ -146,19 +174,22 @@ export default function Room({ roomId }) {
 
   const renderGames = () => {
     return activeGames.map((g) => (
-      <Link
+      <span
+        color="blue"
         id={g.gameData.id}
         key={g.gameData.id}
         to={`/room/${roomId}/${g.gameData.gameCode}/${g.gameData.id}`}
       >
         {`${g.gameData.gameCode}#${g.gameData.id}`}
-      </Link>
+      </span>
     ));
   };
 
   return (
     <RoomWrapper>
-      <UserList title="Connected Users">{renderUserBoxes()}</UserList>
+      <UserList side="left" title="Connected Users">
+        {renderUserBoxes()}
+      </UserList>
       <ChatBox>
         <MessageList title="Messages">{renderMessages()}</MessageList>
         <InputForm onSubmit={handleSendClick}>
@@ -167,7 +198,14 @@ export default function Room({ roomId }) {
         </InputForm>
       </ChatBox>
       <GameBox>
-        <GamesList title="Room's Games">{renderGames()}</GamesList>
+        <GamesList
+          links
+          open={!creatingNewGame}
+          side="right"
+          title="Room's Games"
+        >
+          {renderGames()}
+        </GamesList>
         {creatingNewGame ? (
           <form onSubmit={HandleGameSubmit}>
             <Input value={newGameX} type="number" onChange={setNewGameX}>
@@ -204,7 +242,15 @@ export default function Room({ roomId }) {
             >
               Gravity
             </Input>
-            <Button type="submit">Criar</Button>
+            <ActionsWrapper>
+              <ActionsButtons type="submit">Criar</ActionsButtons>
+              <ActionsButtons
+                type="warn"
+                onClick={() => setCreatingNewGame(false)}
+              >
+                Cancelar
+              </ActionsButtons>{' '}
+            </ActionsWrapper>
           </form>
         ) : (
           <NewGameButton onClick={handleNewGameButton}>

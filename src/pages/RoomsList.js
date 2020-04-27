@@ -1,21 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { navigate, Link } from '@reach/router';
-import { Button, List, Input } from '../components';
+import { navigate } from '@reach/router';
+import { Button, List, LinkButton, Input, Title, Card } from '../components';
 
 import RoomsService from '../services/RoomsService';
 
 const PageWrapper = styled.div`
-  display: flex;
+  margin-top: 10vh;
 `;
 const ListsWrapper = styled.div`
+  display: flex;
   flex: 1;
+  justify-content: center;
 `;
-const CreateWrapper = styled.div`
+
+const RoomList = styled(List)`
+  max-width: 300px;
   flex: 1;
 `;
 
-const CreateButton = styled(Button)``;
+const CreateCard = styled(Card)`
+  max-width: 300px;
+  flex: 1;
+`;
+
+const FullSpaceLink = styled(LinkButton)`
+  width: 100%;
+  height: 100%;
+`;
+
+const CreateButton = styled(Button)`
+  margin: 20px auto;
+`;
 
 export default function RoomsList() {
   //TODO make good pagination functionality
@@ -24,7 +40,7 @@ export default function RoomsList() {
   const [userRooms, setUserRooms] = useState([]);
 
   const [roomName, setRoomName] = useState('');
-  const [roomMaxPlayers, setRoomMaxPlayers] = useState(0);
+  const [roomMaxPlayers, setRoomMaxPlayers] = useState(2);
   const [roomIsPublic, setRoomIsPublic] = useState(false);
   const [roomPassword, setRoomPassword] = useState('');
 
@@ -62,51 +78,55 @@ export default function RoomsList() {
   useEffect(refreshLists, [publicRoomsPage]);
 
   const getRoomLink = (r) => (
-    <Link id={r.id} key={r.id} to={`/room/${r.id}`}>
+    <FullSpaceLink id={r.id} key={r.id} to={`/room/${r.id}`}>
       {r.name}
-    </Link>
+    </FullSpaceLink>
   );
 
   return (
     <PageWrapper>
+      <Title>Rooms</Title>
       <ListsWrapper>
-        <h1>Rooms</h1>
-        <List title="Public Rooms">{publicRooms.map(getRoomLink)}</List>{' '}
-        <List title="Your Rooms">{userRooms.map(getRoomLink)}</List>
+        <RoomList type="card" title="Public Rooms">
+          {publicRooms.map(getRoomLink)}
+        </RoomList>{' '}
+        <RoomList type="card" title="Your Rooms">
+          {userRooms.map(getRoomLink)}
+        </RoomList>
+        <CreateCard title="Create Room">
+          <form onSubmit={handleSubmit}>
+            <Input value={roomName} onChange={setRoomName}>
+              Room name
+            </Input>
+            <Input
+              type="number"
+              min={2}
+              max={12}
+              value={roomMaxPlayers}
+              onChange={setRoomMaxPlayers}
+            >
+              Maximum Users
+            </Input>
+            <Input
+              type="checkbox"
+              value={roomIsPublic}
+              onChange={(evt) => {
+                setRoomIsPublic(evt);
+              }}
+            >
+              Is Public?
+            </Input>
+            <Input
+              type="password"
+              value={roomPassword}
+              onChange={setRoomPassword}
+            >
+              Password
+            </Input>
+            <CreateButton type="submit">Create new Room</CreateButton>
+          </form>
+        </CreateCard>
       </ListsWrapper>
-      <CreateWrapper>
-        <h3>Create Room</h3>
-        <form onSubmit={handleSubmit}>
-          <Input value={roomName} onChange={setRoomName}>
-            Room name
-          </Input>
-          <Input
-            type="number"
-            min={0}
-            value={roomMaxPlayers}
-            onChange={setRoomMaxPlayers}
-          >
-            Maximum Users
-          </Input>
-          <Input
-            type="checkbox"
-            value={roomIsPublic}
-            onChange={(evt) => {
-              setRoomIsPublic(evt);
-            }}
-          >
-            Is Public?
-          </Input>
-          <Input
-            type="password"
-            value={roomPassword}
-            onChange={setRoomPassword}
-          >
-            Password
-          </Input>
-          <CreateButton type="submit">Create new Room</CreateButton>
-        </form>
-      </CreateWrapper>
     </PageWrapper>
   );
 }

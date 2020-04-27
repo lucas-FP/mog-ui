@@ -16,12 +16,14 @@ const RoomWrapper = styled.div`
 `;
 
 const InfoBox = styled.div`
-  width: 150px;
+  width: 200px;
   display: flex;
   flex-direction: column;
 `;
 
-const UserList = styled(List)``;
+const UserList = styled(List)`
+  height: calc(100vh - 155px);
+`;
 
 const GameBox = styled.div`
   width: calc(100vw - 166px);
@@ -51,6 +53,17 @@ const ColorName = styled.span`
   font-weigth: bold;
 `;
 
+const ActionsWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const ActionButton = styled(Button)`
+  width: 75%;
+  margin: 5px;
+`;
+
 const VictoryText = styled.h2``;
 
 //TODO think of better way to do this, not using 2 rendermaps
@@ -69,83 +82,83 @@ const renderBoxMap = {
   '11': <ColorBox color={'gray'} />,
 };
 
-const renderNameMap = (text, i, id) => {
+const renderNameMap = (text, i, id, selected) => {
   switch (i) {
     case 0:
       return (
-        <ColorName key={id} color={'blue'}>
+        <ColorName selected={selected} key={id} color={'blue'}>
           {text}
         </ColorName>
       );
     case 1:
       return (
-        <ColorName key={id} color={'red'}>
+        <ColorName selected={selected} key={id} color={'red'}>
           {text}
         </ColorName>
       );
     case 2:
       return (
-        <ColorName key={id} color={'green'}>
+        <ColorName selected={selected} key={id} color={'green'}>
           {text}
         </ColorName>
       );
     case 3:
       return (
-        <ColorName key={id} color={'yellow'}>
+        <ColorName selected={selected} key={id} color={'yellow'}>
           {text}
         </ColorName>
       );
     case 4:
       return (
-        <ColorName key={id} color={'purple'}>
+        <ColorName selected={selected} key={id} color={'purple'}>
           {text}
         </ColorName>
       );
     case 5:
       return (
-        <ColorName key={id} color={'orange'}>
+        <ColorName selected={selected} key={id} color={'orange'}>
           {text}
         </ColorName>
       );
     case 6:
       return (
-        <ColorName key={id} color={'deeppink'}>
+        <ColorName selected={selected} key={id} color={'deeppink'}>
           {text}
         </ColorName>
       );
     case 7:
       return (
-        <ColorName key={id} color={'black'}>
+        <ColorName selected={selected} key={id} color={'black'}>
           {text}
         </ColorName>
       );
     case 8:
       return (
-        <ColorName key={id} color={'brown'}>
+        <ColorName selected={selected} key={id} color={'brown'}>
           {text}
         </ColorName>
       );
     case 9:
       return (
-        <ColorName key={id} color={'cyan'}>
+        <ColorName selected={selected} key={id} color={'cyan'}>
           {text}
         </ColorName>
       );
     case 10:
       return (
-        <ColorName key={id} color={'lawngreen'}>
+        <ColorName selected={selected} key={id} color={'lawngreen'}>
           {text}
         </ColorName>
       );
     case 11:
       return (
-        <ColorName key={id} color={'crimson'}>
+        <ColorName selected={selected} key={id} color={'crimson'}>
           {text}
         </ColorName>
       );
     default:
       return (
-        <ColorName key={id} color={'gray'}>
+        <ColorName selected={selected} key={id} color={'gray'}>
           {text}
         </ColorName>
       );
@@ -198,10 +211,7 @@ export default function ConnectRoom({ roomId, gameId }) {
   };
 
   const onEnterSlot = (gameSlot) => {
-    if (Array.isArray(gameSlot))
-      setUserSlots((users) =>
-        [...users, ...gameSlot].filter(uniqueKeyFilter('id'))
-      );
+    if (Array.isArray(gameSlot)) setUserSlots(gameSlot);
     else
       setUserSlots((users) =>
         [...users, gameSlot].filter(uniqueKeyFilter('id'))
@@ -249,8 +259,8 @@ export default function ConnectRoom({ roomId, gameId }) {
         ? i
         : null;
       if (gameState && gameState.turnPlayer && gameState.turnPlayer.id === u.id)
-        return renderNameMap('->' + (u.nick || u.userName), index, u.id);
-      else return renderNameMap(u.nick || u.userName, index, u.id);
+        return renderNameMap(u.nick || u.userName, index, u.id, true);
+      else return renderNameMap(u.nick || u.userName, index, u.id, false);
     });
   };
 
@@ -260,31 +270,42 @@ export default function ConnectRoom({ roomId, gameId }) {
   return (
     <RoomWrapper>
       <InfoBox>
-        <UserList title="Connected Users">{renderUserBoxes()}</UserList>
-        {gameState.victoryPlayer && (
-          <VictoryText>
-            {gameState.victoryPlayer.id
-              ? (gameState.victoryPlayer.nick ||
-                  gameState.victoryPlayer.userName) + ' wins'
-              : gameState.victoryPlayer.msg}
-          </VictoryText>
-        )}
-        {gameState.gameStatus === GameStatus.NOT_STARTED && (
-          <Button onClick={() => gameSocket.startGame()}>Start Game</Button>
-        )}
-        {(gameState.gameStatus === GameStatus.FINISHED ||
-          (gameState.gameStatus !== GameStatus.NOT_STARTED &&
-            hasPlayerQuitted)) && (
-          <Button onClick={() => gameSocket.restartGame()}>Restart</Button>
-        )}
-        <Button
-          onClick={() => {
-            gameSocket.quitGame();
-            navigate(`/room/${roomId}`);
-          }}
-        >
-          Quit
-        </Button>
+        <UserList concise side="left" title="Players">
+          {renderUserBoxes()}
+        </UserList>
+        <ActionsWrapper>
+          {gameState.victoryPlayer && (
+            <VictoryText>
+              {gameState.victoryPlayer.id
+                ? (gameState.victoryPlayer.nick ||
+                    gameState.victoryPlayer.userName) + ' wins'
+                : gameState.victoryPlayer.msg}
+            </VictoryText>
+          )}
+          {gameState.gameStatus === GameStatus.NOT_STARTED && (
+            <ActionButton type="send" onClick={() => gameSocket.startGame()}>
+              Start Game
+            </ActionButton>
+          )}
+          {(gameState.gameStatus === GameStatus.FINISHED ||
+            (gameState.gameStatus !== GameStatus.NOT_STARTED &&
+              hasPlayerQuitted)) && (
+            <ActionButton onClick={() => gameSocket.restartGame()}>
+              Restart
+            </ActionButton>
+          )}
+          {gameState.gameStatus !== GameStatus.FINISHED && (
+            <ActionButton
+              type="warn"
+              onClick={() => {
+                gameSocket.quitGame();
+                navigate(`/room/${roomId}`);
+              }}
+            >
+              Quit
+            </ActionButton>
+          )}
+        </ActionsWrapper>
       </InfoBox>
       <GameBox>
         <GridSizer xSize={xSize} ySize={ySize}>

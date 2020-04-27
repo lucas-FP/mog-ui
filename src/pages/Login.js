@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import LoginService from '../services/LoginService';
 import UserService from '../services/UserService';
-import { Button, Input } from '../components';
+import { Button, Input, Title, Expandable } from '../components';
 import { navigate } from '@reach/router';
 
 const LoginWrapper = styled.div`
@@ -13,11 +13,30 @@ const SectionWrapper = styled.div`
   display: flex;
   flex: 1;
   flex-direction: column;
+  max-width: 500px;
+  margin: 20vh auto;
+  height: 50vh;
+  align-items: center;
+`;
+
+const SpacedInput = styled(Input)`
+  margin: 10px;
 `;
 
 const SectionForm = styled.form`
   padding: 5px;
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify
 `;
+
+const EnterButton = styled(Button)`
+  margin: 20px auto;
+`;
+
+//TODO think of better layout for all the options (and uncomment them!!)
 
 export default function Login() {
   const [userName, setUserName] = useState('');
@@ -65,53 +84,53 @@ export default function Login() {
 
   return (
     <LoginWrapper>
-      <SectionWrapper>
-        <h1>Login</h1>
+      {/* <SectionWrapper>
+        <Title>Login</Title>
         <SectionForm onSubmit={handleSubmit}>
-          <Input value={userName} onChange={setUserName}>
+          <SpacedInput value={userName} onChange={setUserName}>
             User Name
-          </Input>
-          <Input type="password" value={password} onChange={setPassword}>
+          </SpacedInput>
+          <SpacedInput type="password" value={password} onChange={setPassword}>
             Password
-          </Input>
-          <Button type="submit">Enter</Button>
+          </SpacedInput>
+          <EnterButton type="submit">Enter</EnterButton>
         </SectionForm>
-      </SectionWrapper>
+      </SectionWrapper> */}
       <SectionWrapper>
-        <h1>Enter as Guest</h1>
+        <Title>Enter as Guest</Title>
         <SectionForm onSubmit={handleGuestSubmit}>
-          <Input value={nick} onChange={setNick}>
+          <SpacedInput value={nick} onChange={setNick}>
             Nickname
-          </Input>
-          <Button type="submit">Enter</Button>
+          </SpacedInput>
+          <EnterButton type="submit">Enter</EnterButton>
         </SectionForm>
       </SectionWrapper>
-      <SectionWrapper>
-        <h1>Register</h1>
+      {/* <SectionWrapper>
+        <Title>Register</Title>
         <SectionForm onSubmit={handleRegisterSubmit}>
-          <Input value={registerName} onChange={setRegisterName}>
+          <SpacedInput value={registerName} onChange={setRegisterName}>
             User Name
-          </Input>
-          <Input value={registerNick} onChange={setRegisterNick}>
+          </SpacedInput>
+          <SpacedInput value={registerNick} onChange={setRegisterNick}>
             Nickname
-          </Input>
-          <Input
+          </SpacedInput>
+          <SpacedInput
             type="password"
             value={registerPassword}
             onChange={setRegisterPassword}
           >
             Password
-          </Input>{' '}
-          <Input
+          </SpacedInput>{' '}
+          <SpacedInput
             type="password"
             value={registerConfirmPassword}
             onChange={setRegisterConfirmPassword}
           >
             Confirm Password
-          </Input>
-          <Button type="submit">Register</Button>
+          </SpacedInput>
+          <EnterButton type="submit">Register</EnterButton>
         </SectionForm>
-      </SectionWrapper>
+      </SectionWrapper> */}
     </LoginWrapper>
   );
 }

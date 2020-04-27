@@ -1,26 +1,30 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from '@reach/router';
-const Title = styled.h1``;
+import { Title, LinkButton } from '../components';
 
-const SubTitle = styled.p``;
+const SubTitle = styled.h3`
+  margin: 0;
+  text-align: center;
+`;
 
 const MainWrapper = styled.div``;
 
 const SectionWrapper = styled.div`
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 0 0 100px 0;
 `;
 
 export default function Home() {
   return (
     <MainWrapper>
       <SectionWrapper>
-        <Title>mog</Title>
+        <Title main>mog</Title>
         <SubTitle>Minimalistic Online Games</SubTitle>
       </SectionWrapper>
       <SectionWrapper>
-        <Link to="/login">Login</Link>
+        <LinkButton to="/login">Login</LinkButton>
       </SectionWrapper>
     </MainWrapper>
   );
