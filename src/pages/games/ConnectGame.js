@@ -73,8 +73,8 @@ const renderBoxMap = {
   '2': <ColorBox color={'green'} />,
   '3': <ColorBox color={'yellow'} />,
   '4': <ColorBox color={'purple'} />,
-  '5': <ColorBox color={'deeppink'} />,
-  '6': <ColorBox color={'orange'} />,
+  '5': <ColorBox color={'orange'} />,
+  '6': <ColorBox color={'deeppink'} />,
   '7': <ColorBox color={'black'} />,
   '8': <ColorBox color={'brown'} />,
   '9': <ColorBox color={'cyan'} />,
@@ -241,7 +241,6 @@ export default function ConnectRoom({ roomId, gameId }) {
   };
 
   useEffect(() => {
-    console.log('effect');
     gameSocket.listen();
     gameSocket.enter();
     return () => {
